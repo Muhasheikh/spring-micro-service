@@ -1,10 +1,8 @@
 package com.microservice.department_service.controller;
 
+import com.microservice.department_service.config.EmployeeClient;
 import com.microservice.department_service.model.Department;
 import com.microservice.department_service.service.iDepartmentService;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.QueryParam;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,8 +13,11 @@ public class DepartmentController {
 
     private final iDepartmentService iDepartmentService;
 
-    public DepartmentController(iDepartmentService iDepartmentService) {
+    private final EmployeeClient employeeClient;
+
+    public DepartmentController(iDepartmentService iDepartmentService, EmployeeClient employeeClient) {
         this.iDepartmentService = iDepartmentService;
+        this.employeeClient = employeeClient;
     }
 
 
@@ -33,5 +34,16 @@ public class DepartmentController {
     @GetMapping("/findAll")
     public List<Department> findAllDepartment(){
         return iDepartmentService.findAllDepartments();
+    }
+
+    @GetMapping("/withEmployees")
+    public List<Department> findAllDepartmentwithEmployees(){
+
+        List<Department> departments= iDepartmentService.findAllDepartments();
+
+        departments.forEach(d -> d.setEmployee(employeeClient.
+                findEmployeesByDepID(d.getDepartmentID())));
+
+        return departments;
     }
 }
